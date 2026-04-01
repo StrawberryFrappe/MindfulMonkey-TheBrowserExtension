@@ -1,0 +1,22 @@
+{
+    "name": "Mindful Monkey",
+    "description": "Track time spent on domain groups and redirect to Wikipedia when limits are exceeded.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "storage",
+        "tabs",
+        "alarms",
+        "webNavigation"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "monkey.png"
+    }
+}

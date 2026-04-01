@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=400">
+    <title>Mindful Monkey</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="monkey.png" alt="Mindful Monkey" class="logo">
+            <h1>Mindful Monkey</h1>
+        </header>
+
+        <main class="main">
+            <div id="groups-container" class="groups-container">
+                <!-- Groups will be rendered here -->
+            </div>
+
+            <button id="add-group-btn" class="btn btn-primary">
+                <span class="icon">+</span> Add Domain Group
+            </button>
+        </main>
+
+        <!-- Add/Edit Group Modal -->
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Add Domain Group</h2>
+                    <button id="modal-close" class="modal-close">&times;</button>
+                </div>
+                <form id="group-form">
+                    <input type="hidden" id="edit-group-id">
+
+                    <div class="form-group">
+                        <label for="group-name">Group Name</label>
+                        <input type="text" id="group-name" placeholder="e.g., Social Media" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="group-domains">Domains (one per line)</label>
+                        <textarea id="group-domains" placeholder="twitter.com&#10;facebook.com" rows="4"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="group-limit">Daily Time Limit</label>
+                        <div class="time-input">
+                            <input type="number" id="group-limit-hours" min="0" max="23" value="2">
+                            <span>hours</span>
+                            <input type="number" id="group-limit-minutes" min="0" max="59" value="0">
+                            <span>minutes</span>
+                        </div>
+                        <p id="pending-notice" class="pending-notice hidden">
+                            ⏳ Time limit changes take effect tomorrow at midnight
+                        </p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="delete-group-btn" class="btn btn-danger hidden">Delete</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
