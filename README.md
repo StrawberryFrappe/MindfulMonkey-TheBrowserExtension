@@ -14,5 +14,5 @@ A really simple browser extension that tracks your time on distracting websites 
 5. Click **Load unpacked** and select the unzipped folder.
 
 
-## 📄 License
+## License
 MIT License.
