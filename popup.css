@@ -19,6 +19,7 @@
     --digital-bg: #000000;
     --digital-off: #2a2a2a;
     --digital-on: #e94560;
+    --info: #3498db;
 }
 
 * {
@@ -128,6 +129,15 @@ body {
     border: 2px solid var(--danger);
 }
 
+.group-card.pending-deletion {
+    border: 1px dashed var(--danger);
+    opacity: 0.85;
+}
+
+.group-card.pending-deletion:hover {
+    opacity: 1;
+}
+
 .group-header {
     display: flex;
     justify-content: space-between;
@@ -225,6 +235,12 @@ body {
     background: rgba(255, 193, 7, 0.2);
     color: var(--warning);
     border-radius: 10px;
+    z-index: 10;
+}
+
+.pending-badge.delete {
+    background: rgba(233, 69, 96, 0.2);
+    color: var(--danger);
 }
 
 /* Buttons */
@@ -253,15 +269,19 @@ body {
     box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
 }
 
-.btn-danger {
-    background: transparent;
-    border: 1px solid var(--danger);
-    color: var(--danger);
-}
-
 .btn-danger:hover {
     background: var(--danger);
     color: white;
+}
+
+.btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .btn .icon {
@@ -415,16 +435,29 @@ body {
 
 /* Pending Notice */
 .pending-notice {
-    margin-top: 8px;
-    font-size: 0.8rem;
-    color: var(--warning);
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .pending-notice.hidden {
     display: none;
+}
+
+.notice.warning {
+    background: rgba(233, 69, 96, 0.1);
+    color: var(--danger);
+    border-left: 3px solid var(--danger);
+}
+
+.notice.info {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--info);
+    border-left: 3px solid var(--info);
 }
 
 /* Form Actions */

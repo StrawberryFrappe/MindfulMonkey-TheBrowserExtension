@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const usedMinutes = group.usedMinutes || 0;
             const limitMinutes = group.limitMinutes || 120;
             const exceeded = usedMinutes >= limitMinutes;
-            const hasPending = group.pendingLimitMinutes !== null && group.pendingLimitMinutes !== undefined;
+            const hasPendingLimit = group.pendingLimitMinutes !== null && group.pendingLimitMinutes !== undefined;
+            const isPendingDeletion = group.pendingDeletion === true;
 
             const remainingMinutes = Math.max(0, limitMinutes - usedMinutes);
             const digitalTime = formatDigitalTime(remainingMinutes);
@@ -69,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const limitText = limitHours > 0 ? `${limitHours}h ${limitMins}m` : `${limitMins}m`;
 
             return `
-                <div class="group-card ${exceeded ? 'exceeded' : ''}" data-group-id="${groupId}">
-                    ${hasPending ? '<span class="pending-badge">Pending change</span>' : ''}
+                <div class="group-card ${exceeded ? 'exceeded' : ''} ${isPendingDeletion ? 'pending-deletion' : ''}" data-group-id="${groupId}">
+                    ${isPendingDeletion ? '<span class="pending-badge delete">Pending deletion</span>' : (hasPendingLimit ? '<span class="pending-badge">Pending limit change</span>' : '')}
                     <div class="group-header">
                         <span class="group-name">${escapeHtml(group.name)}</span>
                         <span class="group-status ${exceeded ? 'exceeded' : 'active'}">
@@ -133,7 +134,23 @@ document.addEventListener('DOMContentLoaded', () => {
         groupLimitMinutes.value = Math.round(limitMins % 60);
 
         // Show pending notice for existing groups
-        pendingNotice.classList.remove('hidden');
+        if (group.pendingDeletion) {
+            pendingNotice.textContent = 'Scheduled for deletion tomorrow.';
+            pendingNotice.className = 'pending-notice notice warning';
+            deleteGroupBtn.textContent = 'Cancel Deletion';
+            deleteGroupBtn.className = 'btn secondary';
+            pendingNotice.classList.remove('hidden');
+        } else if (group.pendingLimitMinutes !== null && group.pendingLimitMinutes !== undefined) {
+            pendingNotice.textContent = 'Time limit changes will take effect tomorrow.';
+            pendingNotice.className = 'pending-notice notice info';
+            deleteGroupBtn.textContent = 'Delete Group';
+            deleteGroupBtn.className = 'btn danger';
+            pendingNotice.classList.remove('hidden');
+        } else {
+            pendingNotice.classList.add('hidden');
+            deleteGroupBtn.textContent = 'Delete Group';
+            deleteGroupBtn.className = 'btn danger';
+        }
 
         deleteGroupBtn.classList.remove('hidden');
         modal.classList.remove('hidden');
@@ -218,17 +235,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const group = currentData.groups[editGroupId.value];
         if (!group) return;
 
-        if (confirm(`Delete "${group.name}"? This cannot be undone.`)) {
+        if (group.pendingDeletion) {
+            // Cancel deletion
             await new Promise(resolve => {
                 chrome.runtime.sendMessage({
-                    type: 'DELETE_GROUP',
+                    type: 'CANCEL_DELETE_GROUP',
                     groupId: editGroupId.value
                 }, resolve);
             });
-
             closeModal();
             await loadData();
             renderGroups();
+        } else {
+            // Confirm deletion
+            if (confirm(`Queue "${group.name}" for deletion? This will take effect tomorrow.`)) {
+                await new Promise(resolve => {
+                    chrome.runtime.sendMessage({
+                        type: 'DELETE_GROUP',
+                        groupId: editGroupId.value
+                    }, resolve);
+                });
+
+                closeModal();
+                await loadData();
+                renderGroups();
+            }
         }
     });
 

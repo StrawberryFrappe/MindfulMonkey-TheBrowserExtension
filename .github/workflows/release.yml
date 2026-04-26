@@ -5,19 +5,22 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create Extension Zip
         run: |
-          zip -r mindful-monkey.zip . -x "*.git*" "*.github*" "README.md" "test.html"
+          zip -r mindful-monkey.zip . -x "*.git*" "*.github*" "*.md" ".gitignore" "implementation_plan.md"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: mindful-monkey.zip
         env:

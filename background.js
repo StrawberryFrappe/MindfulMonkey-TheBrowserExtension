@@ -37,8 +37,16 @@ async function checkAndPerformDailyReset() {
 
     if (data.lastResetDate !== today) {
         // Reset all timers and apply pending changes
-        for (const groupId in data.groups) {
+        const groupIds = Object.keys(data.groups);
+        for (const groupId of groupIds) {
             const group = data.groups[groupId];
+            
+            // Apply pending deletions first
+            if (group.pendingDeletion) {
+                delete data.groups[groupId];
+                continue;
+            }
+
             group.usedMinutes = 0;
 
             // Apply pending limit changes
@@ -231,7 +239,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 domains: message.domains,
                 limitMinutes: message.limitMinutes || DEFAULT_LIMIT_MINUTES,
                 usedMinutes: 0,
-                pendingLimitMinutes: null
+                pendingLimitMinutes: null,
+                pendingDeletion: false
             };
             await saveData(data);
             sendResponse({ success: true, groupId });
@@ -271,9 +280,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'DELETE_GROUP') {
         (async () => {
             const data = await getData();
-            delete data.groups[message.groupId];
-            await saveData(data);
-            sendResponse({ success: true });
+            if (data.groups[message.groupId]) {
+                data.groups[message.groupId].pendingDeletion = true;
+                await saveData(data);
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'Group not found' });
+            }
+        })();
+        return true;
+    }
+
+    if (message.type === 'CANCEL_DELETE_GROUP') {
+        (async () => {
+            const data = await getData();
+            if (data.groups[message.groupId]) {
+                data.groups[message.groupId].pendingDeletion = false;
+                await saveData(data);
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'Group not found' });
+            }
         })();
         return true;
     }
